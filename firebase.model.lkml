@@ -67,3 +67,43 @@ view: user {
     sql: ${coins} ;;
   }
 }
+
+view: events {
+  extends: [events_base]
+
+  # spend_virtual_currency
+  dimension:  virtual_currency_name {
+    group_label: "spend_virtual_currency"
+    sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'virtual_currency_name')
+          END;;
+  }
+
+  dimension: item_name {
+    group_label: "spend_virtual_currency"
+    sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'item_name')
+          END;;
+  }
+
+  dimension: spend_value {
+    group_label: "spend_virtual_currency"
+    type: number
+    sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
+            (SELECT value.int_value
+            FROM UNNEST(${params})
+            WHERE key = 'value')
+          END;;
+  }
+
+  measure: total_spend_value {
+    group_label: "spend_virtual_currency"
+    type: sum
+    sql: ${spend_value} ;;
+  }
+
+}

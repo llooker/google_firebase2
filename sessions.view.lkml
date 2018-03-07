@@ -314,11 +314,19 @@ view: sessions_base {
     }
   }
 
-  view: events {
+  view: events_base {
+    extension: required
     dimension: id {
       primary_key: yes
       sql: CONCAT(${sessions.id},'_',CAST(${TABLE}.id AS STRING)) ;;
     }
+
+    dimension:  firebase_event_origin {
+      sql:  (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'firebase_event_origin') ;;
+    }
+
     dimension: date {
       type: string
       sql: ${TABLE}.date ;;
