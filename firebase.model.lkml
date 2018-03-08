@@ -1,6 +1,7 @@
 connection: "bigquery_publicdata_standard_sql"
 
-include: "sessions.view"         # include all views in this project
+include: "FIREBASE_BLOCK.view"         # include all views in this project
+include: "events.view"
 
 # Change the name to the location of the table (note, no trailing space).
 view: app_events_table {
@@ -66,4 +67,58 @@ view: user {
     tiers: [0,100,500,2500,12500]
     sql: ${coins} ;;
   }
+}
+
+view: eventsx {
+  extends: [events_base]
+
+  # event spend_virtual_currency
+  dimension:  event_spend_virtual_currency.virtual_currency_name {
+    sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'virtual_currency_name')
+          END;;
+  }
+
+  dimension: event_spend_virtual_currency.item_name {
+    sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'item_name')
+          END;;
+  }
+
+  dimension: event_spend_virtual_currency.value {
+    type: number
+    sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
+            (SELECT value.int_value
+            FROM UNNEST(${params})
+            WHERE key = 'value')
+          END;;
+  }
+
+  measure: event_spend_virtual_currency.total_value {
+    type: sum
+    sql: ${event_spend_virtual_currency.value} ;;
+  }
+
+  # event user_login
+  dimension: event_facebook_account_linked.source {
+      sql:  CASE WHEN ${name} = 'facebook_account_linked' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'source')
+          END;;
+  }
+
+  dimension: event_facebook_account_linked.success {
+    type: yesno
+    sql:  CASE WHEN ${name} = 'facebook_account_linked' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'success')
+          END = 'true';;
+  }
+
 }
