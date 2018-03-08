@@ -1,5 +1,9 @@
+include: "firebase.model"
+
 explore: sessions_base {
   extension: required
+  from: sessions
+  view_name: sessions
   join: user {
     sql: LEFT JOIN UNNEST([${sessions.user_dim}]) user ;;
     relationship: one_to_one
@@ -16,6 +20,10 @@ explore: sessions_base {
     sql: LEFT JOIN UNNEST(ARRAY(
       (SELECT AS STRUCT e.*, ROW_NUMBER() OVER() as id FROM UNNEST(${sessions.event_dim}) e)
       )) events ;;
+    relationship: one_to_many
+  }
+  join: event_parameters {
+    sql:  LEFT JOIN UNNEST(${events.params}) as event_parameters ;;
     relationship: one_to_many
   }
 
@@ -48,6 +56,16 @@ view: sessions_base {
     dimension: user_dim {
       hidden: yes
       sql: ${TABLE}.user_dim ;;
+    }
+
+    filter: session_has_event {
+      sql: (
+        SELECT COUNT(*)
+        FROM UNNEST(${TABLE}.event_dim) e
+        WHERE {%condition%} e.name {%endcondition%}
+        ) > 0;;
+      suggest_explore: event_names_suggest
+      suggest_dimension: event_name
     }
 
     measure: session_count {
@@ -335,6 +353,9 @@ view: sessions_base {
     dimension: name {
       type: string
       sql: ${TABLE}.name ;;
+      suggest_explore: event_names_suggest
+      suggest_dimension: event_name
+
     }
 
     dimension: params {
@@ -370,40 +391,78 @@ view: sessions_base {
     }
     measure: event_count {
       type: count
-      drill_fields: [id,timestamp_micros,name]
+      drill_fields: [timestamp_micros,id,name,parameters]
     }
   }
 
-  view: app_events_20170830__event_dim__params__value {
-    dimension: double_value {
-      type: number
-      sql: ${TABLE}.double_value ;;
-    }
-
-    dimension: float_value {
-      type: number
-      sql: ${TABLE}.float_value ;;
-    }
-
-    dimension: int_value {
-      type: number
-      sql: ${TABLE}.int_value ;;
-    }
-
-    dimension: string_value {
-      type: string
-      sql: ${TABLE}.string_value ;;
-    }
-  }
-
-  view: app_events_20170830__event_dim__params {
-    dimension: key {
+  # Each event has an array of parameters.
+  view: event_parameters {
+    dimension: key{
       type: string
       sql: ${TABLE}.key ;;
     }
 
-    dimension: value {
-      hidden: yes
-      sql: ${TABLE}.value ;;
+    dimension: double_value {
+      type: number
+      sql: ${TABLE}.value.double_value ;;
     }
+
+    dimension: float_value {
+      type: number
+      sql: ${TABLE}.value.float_value ;;
+    }
+
+    dimension: int_value {
+      type: number
+      sql: ${TABLE}.value.int_value ;;
+    }
+
+    dimension: string_value {
+      type: string
+      sql: ${TABLE}.value.string_value ;;
+    }
+
+    dimension: type {
+      sql:
+        CASE
+          WHEN ${TABLE}.value.string_value IS NOT NULL THEN 'string_value'
+          WHEN ${TABLE}.value.int_value IS NOT NULL THEN 'int_value'
+          WHEN ${TABLE}.value.float_value IS NOT NULL THEN 'float_value'
+          WHEN ${TABLE}.value.double_value IS NOT NULL THEN 'double_value'
+        END;;
+    }
+
+    dimension: lookml_type {
+      sql: CASE WHEN ${type} = 'string_value' THEN 'string' ELSE 'number' END ;;
+    }
+
+    dimension: lookml {
+      sql:
+        CONCAT(
+           '  dimension: events_',${events.name},'.',${key}, '{\n'
+          ,'    type: ',${lookml_type},'\n'
+          ,'    sql:'
+          ,'      CASE WHEN $','{name} = \'',${events.name},'\' THEN\n'
+          ,'        (SELECT value.', ${type}, '\n'
+          ,'        FROM UNNEST($','{params})\n'
+          ,'        WHERE key = \'',${key},'\')\n'
+          ,'      END ;\;\n'
+          ,'  }\n'
+        )
+      ;;
+    }
+  }
+
+  # Derived Tables
+
+  # Make a list of all possible event types.
+  explore: event_names_suggest {hidden:yes}
+  view: event_names_suggest {
+    derived_table: {
+      persist_for: "24 hours"
+      explore_source: sessions {
+        column: event_name {field:events.name}
+      }
+    }
+    dimension: event_name {}
   }

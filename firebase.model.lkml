@@ -1,6 +1,7 @@
 connection: "bigquery_publicdata_standard_sql"
 
 include: "sessions.view"         # include all views in this project
+include: "events.view"
 
 # Change the name to the location of the table (note, no trailing space).
 view: app_events_table {
@@ -68,12 +69,11 @@ view: user {
   }
 }
 
-view: events {
+view: eventsx {
   extends: [events_base]
 
-  # spend_virtual_currency
-  dimension:  virtual_currency_name {
-    group_label: "spend_virtual_currency"
+  # event spend_virtual_currency
+  dimension:  event_spend_virtual_currency.virtual_currency_name {
     sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
             (SELECT value.string_value
             FROM UNNEST(${params})
@@ -81,8 +81,7 @@ view: events {
           END;;
   }
 
-  dimension: item_name {
-    group_label: "spend_virtual_currency"
+  dimension: event_spend_virtual_currency.item_name {
     sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
             (SELECT value.string_value
             FROM UNNEST(${params})
@@ -90,8 +89,7 @@ view: events {
           END;;
   }
 
-  dimension: spend_value {
-    group_label: "spend_virtual_currency"
+  dimension: event_spend_virtual_currency.value {
     type: number
     sql:  CASE WHEN ${name} = 'spend_virtual_currency' THEN
             (SELECT value.int_value
@@ -100,10 +98,27 @@ view: events {
           END;;
   }
 
-  measure: total_spend_value {
-    group_label: "spend_virtual_currency"
+  measure: event_spend_virtual_currency.total_value {
     type: sum
-    sql: ${spend_value} ;;
+    sql: ${event_spend_virtual_currency.value} ;;
+  }
+
+  # event user_login
+  dimension: event_facebook_account_linked.source {
+      sql:  CASE WHEN ${name} = 'facebook_account_linked' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'source')
+          END;;
+  }
+
+  dimension: event_facebook_account_linked.success {
+    type: yesno
+    sql:  CASE WHEN ${name} = 'facebook_account_linked' THEN
+            (SELECT value.string_value
+            FROM UNNEST(${params})
+            WHERE key = 'success')
+          END = 'true';;
   }
 
 }
