@@ -48,6 +48,7 @@ view: lookml {
   derived_table: {
     explore_source: sessions_debug {
       column: lookml_dimensions {field: event_parameters.lookml_dimension}
+      filters: {field:event_parameters.key value:"-firebase_event_origin"}
     }
   }
   dimension: lookml_dimensions {}
@@ -56,7 +57,7 @@ view: lookml {
         CONCAT(
            'view: events {\n'
           ,'  extends: [events_base]\n'
-          ,STRING_AGG(${lookml_dimensions},'\n'),'\n'
+          ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
           ,'}'
         )
         ;;
