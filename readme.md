@@ -32,21 +32,8 @@ Once you have the firebase model configured.
 
 ### 1. Goto the following link (replace the hostname with the appropriate value)
 
-  https://master.dev.looker.com/explore/firebase/sessions_debug?fields=event_parameters.lookml
+  https://master.dev.looker.com/explore/firebase/lookml?fields=lookml.lookml
 
+### 2. Copy and Paste the the output the contents of the field 'lookml' into the events view in `events.view.lkml`
 
-### 2. Save the file to your local drive as a CSV.
-Suggested name is firebase_events.csv
-
-
-### 3. Run the following command from a unix shell.
-
-This command will eliminate the header and remove the quotes from the CSV output.
-
-```
- tail -n +2 firebase_events.csv | sed -e 's/\"//g'
-```
-
-### 4. Cut and Paste the the output dimensions into the events view in `events.view.lkml`
-
-You should now be able to explore all the event.
+You should now be able to explore all the events.
