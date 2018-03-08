@@ -43,6 +43,28 @@ explore: sessions_debug {
   }
 }
 
+explore: lookml {hidden: yes}
+view: lookml {
+  derived_table: {
+    explore_source: sessions_debug {
+      column: lookml_dimensions {field: event_parameters.lookml_dimension}
+      filters: {field:event_parameters.key value:"-firebase_event_origin"}
+    }
+  }
+  dimension: lookml_dimensions {}
+  measure: lookml {
+    sql:
+        CONCAT(
+           'view: events {\n'
+          ,'  extends: [events_base]\n'
+          ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
+          ,'}'
+        )
+        ;;
+    html: <pre>{{value}}</pre> ;;
+  }
+}
+
 view: sessions_base {
   extension: required
   sql_table_name:
@@ -450,12 +472,12 @@ view: sessions_base {
       sql: CASE WHEN ${type} = 'string_value' THEN 'string' ELSE 'number' END ;;
     }
 
-    dimension: lookml {
+    dimension: lookml_dimension {
       sql:
         CONCAT(
-           '  dimension: events_',${events.name},'.',${key}, '{\n'
+           '  dimension: events_',${events.name},'.',${key}, ' {\n'
           ,'    type: ',${lookml_type},'\n'
-          ,'    sql:'
+          ,'    sql:\n'
           ,'      CASE WHEN $','{name} = \'',${events.name},'\' THEN\n'
           ,'        (SELECT value.', ${type}, '\n'
           ,'        FROM UNNEST($','{params})\n'
