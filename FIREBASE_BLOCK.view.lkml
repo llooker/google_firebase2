@@ -475,9 +475,9 @@ view: sessions_base {
     dimension: lookml_dimension {
       sql:
         CONCAT(
-           '  dimension: events_',${events.name},'.',${key}, '{\n'
+           '  dimension: events_',${events.name},'.',${key}, ' {\n'
           ,'    type: ',${lookml_type},'\n'
-          ,'    sql:'
+          ,'    sql:\n'
           ,'      CASE WHEN $','{name} = \'',${events.name},'\' THEN\n'
           ,'        (SELECT value.', ${type}, '\n'
           ,'        FROM UNNEST($','{params})\n'
