@@ -28,10 +28,10 @@ blah<>blah<
 This model contans a way to generate LookML code dynamically for the structure of the data in the database.
 Once you have the firebase model configured.
 
-### 1. Goto the following link (replace the hostname with the appropriate value)
+### 1. Goto the following link
 
-[https:/yourlooker.looker.com/explore/firebase/lookml?fields=lookml.lookml](/explore/firebase/lookml?fields=lookml.lookml)
+[Generate LookML Code](/explore/firebase/lookml?fields=lookml.lookml)
 
-### 2. Copy and Paste the the output the contents of the field 'lookml' into the events view in `events_generated.view.lkml`
+### 2. Copy and Paste the the output the contents of the measure into the `events_generated` view in `events_generated.view.lkml`
 
 You should now be able to explore all the events.

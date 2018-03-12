@@ -54,7 +54,7 @@ view: lookml {
   dimension: lookml_dimensions {}
   measure: lookml {
     view_label: ""
-    label: "Copy and paste this into file events_generated.view.lookml"
+    label: "Copy and paste this code into file events_generated.view.lookml"
     sql:
         CONCAT(
            '#-- Machine Generated File, See README.  Do not edit directly\n'
