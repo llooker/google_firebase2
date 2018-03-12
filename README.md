@@ -23,15 +23,17 @@ blah<>blah<
 * `events_generated.view.lkml` - Automatically generate this file using the technique below.
 
 
-# Automatically Building events_generated.view.lkml.
+# Automatically Building Lookml
 
 This model contans a way to generate LookML code dynamically for the structure of the data in the database.
 Once you have the firebase model configured.
 
-### 1. Goto the following link
+## 1. Goto the following link
 
-[Generate LookML Code](/explore/firebase/lookml?fields=lookml.lookml)
+### [Generate LookML Code For Events](/explore/firebase/events_lookml?fields=events_lookml.lookml)
 
-### 2. Copy and Paste the the output the contents of the measure into the `events_generated` view in `events_generated.view.lkml`
+### [Generate LookML Code For Users](/explore/firebase/user_lookml?fields=user_lookml.lookml)
+
+## 2. Copy and Paste the the output the contents of the measure into the `events_generated` view in `events_generated.view.lkml`
 
 You should now be able to explore all the events.
