@@ -53,10 +53,12 @@ view: lookml {
   }
   dimension: lookml_dimensions {}
   measure: lookml {
+    view_label: ""
+    label: "Copy and paste this into file events_generated.view.lookml"
     sql:
         CONCAT(
-           'view: events {\n'
-          ,'  extends: [events_base]\n'
+           '#-- Machine Generated File, See README.  Do not edit directly\n'
+          ,'view: events_generated {\n'
           ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
           ,'}'
         )

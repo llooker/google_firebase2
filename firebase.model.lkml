@@ -1,7 +1,7 @@
 connection: "bigquery_publicdata_standard_sql"
 
 include: "FIREBASE_BLOCK.view"         # include all views in this project
-include: "events.view"
+include: "*generated.view"
 
 # Change the name to the location of the table (note, no trailing space).
 view: app_events_table {
@@ -69,8 +69,8 @@ view: user {
   }
 }
 
-view: eventsx {
-  extends: [events_base]
+view: events {
+  extends: [events_base, events_generated]
 
   # event spend_virtual_currency
   dimension:  event_spend_virtual_currency.virtual_currency_name {
