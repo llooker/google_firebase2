@@ -77,8 +77,17 @@ view: sessions_base {
           PARTITION BY _TABLE_SUFFIX
           ORDER BY (SELECT MIN(timestamp_micros) FROM UNNEST(event_dim) )
           ) as id
-    FROM `${app_events_table.SQL_TABLE_NAME}2*`) ;;
+    FROM `${app_events_table.SQL_TABLE_NAME}2*`
+    WHERE {%condition event_date%}
+            TIMESTAMP(PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(CONCAT('2',_TABLE_SUFFIX),r'\d\d\d\d\d\d\d\d')))
+          {%endcondition%}
 
+
+    ) ;;
+
+    filter: event_date {
+      type: date
+    }
 
     dimension: id {
       primary_key:yes

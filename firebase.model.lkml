@@ -10,14 +10,12 @@ view: app_events_table {
 
 explore: sessions {
   extends: [sessions_base]
+  # Uncomment if you want to examine less time by default
+  #conditionally_filter:{ filters:{field:event_date  value:"2 days"}}
 }
 
 view: sessions {
   extends: [sessions_base]
-}
-
-view: device {
-  extends: [device_base]
 }
 
 view: user {
@@ -26,4 +24,8 @@ view: user {
 
 view: events {
   extends: [events_base, events_generated]
+}
+
+view: device {
+  extends: [device_base]
 }
