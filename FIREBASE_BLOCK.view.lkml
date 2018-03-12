@@ -58,7 +58,9 @@ view: lookml {
     sql:
         CONCAT(
            '#-- Machine Generated File, See README.  Do not edit directly\n'
+          ,'include: "firebase.model.lkml\n'
           ,'view: events_generated {\n'
+          ,'  extends: [events_base]\n'
           ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
           ,'}'
         )
