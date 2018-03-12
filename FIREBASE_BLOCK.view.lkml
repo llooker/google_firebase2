@@ -30,45 +30,6 @@ explore: sessions_base {
 
 }
 
-explore: sessions_debug {
-  extends: [sessions_base]
-  hidden: yes
-  join: event_parameters {
-    sql:  LEFT JOIN UNNEST(${events.params}) as event_parameters ;;
-    relationship: one_to_many
-  }
-  join: user_properties {
-    sql: LEFT JOIN UNNEST(${user.user_properties}) user_properties ;;
-    relationship: one_to_many
-  }
-}
-
-explore: lookml {hidden: yes}
-view: lookml {
-  derived_table: {
-    explore_source: sessions_debug {
-      column: lookml_dimensions {field: event_parameters.lookml_dimension}
-      filters: {field:event_parameters.key value:"-firebase_event_origin"}
-    }
-  }
-  dimension: lookml_dimensions {}
-  measure: lookml {
-    view_label: ""
-    label: "Copy and paste this code into file events_generated.view.lookml"
-    sql:
-        CONCAT(
-           '#-- Machine Generated File, See README.  Do not edit directly\n'
-          ,'include: "firebase.model.lkml\n'
-          ,'view: events_generated {\n'
-          ,'  extends: [events_base]\n'
-          ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
-          ,'}'
-        )
-        ;;
-    html: <pre>{{value}}</pre> ;;
-  }
-}
-
 view: sessions_base {
   extension: required
   sql_table_name:
@@ -362,6 +323,36 @@ view: sessions_base {
       group_label: "Value"
       sql: ${TABLE}.value.value.float_value ;;
     }
+
+    dimension: type {
+      sql:
+        CASE
+          WHEN ${string_value} IS NOT NULL THEN 'string_value'
+          WHEN ${int_value} IS NOT NULL THEN 'int_value'
+          WHEN ${float_value} IS NOT NULL THEN 'float_value'
+          WHEN ${double_value} IS NOT NULL THEN 'double_value'
+        END;;
+    }
+
+    dimension: lookml_type {
+      sql: CASE WHEN ${type} = 'string_value' THEN 'string' ELSE 'number' END ;;
+    }
+
+    dimension: lookml_dimension {
+      sql:
+        CONCAT(
+           '  dimension: user_property.',${key}, ' {\n'
+          ,'    type: ',${lookml_type},'\n'
+          ,'    sql:\n'
+          ,'        (SELECT value.value.', ${type}, '\n'
+          ,'        FROM UNNEST($','{user_properties})\n'
+          ,'        WHERE key = \'',${key},'\')\n'
+          ,'        ;\;\n'
+          ,'  }\n'
+        )
+      ;;
+    }
+
   }
 
   view: app_events_20170830__user_dim__traffic_source {
@@ -501,6 +492,79 @@ view: sessions_base {
       ;;
     }
   }
+
+
+#
+#--- debug stuff for generating code.
+#
+
+explore: sessions_debug {
+  extends: [sessions_base]
+  hidden: yes
+  join: event_parameters {
+    sql:  LEFT JOIN UNNEST(${events.params}) as event_parameters ;;
+    relationship: one_to_many
+  }
+  join: user_properties {
+    sql: LEFT JOIN UNNEST(${user.user_properties}) user_properties ;;
+    relationship: one_to_many
+  }
+}
+
+
+
+explore: events_lookml {hidden: yes}
+view: events_lookml {
+  derived_table: {
+    explore_source: sessions_debug {
+      column: lookml_dimensions {field: event_parameters.lookml_dimension}
+      filters: {field:event_parameters.key value:"-firebase_event_origin"}
+    }
+  }
+  dimension: lookml_dimensions {}
+  measure: lookml {
+    view_label: ""
+    label: "Copy and paste this code into file events_generated.view.lookml"
+    sql:
+        CONCAT(
+           '#-- Machine Generated File, See README.  Do not edit directly\n'
+          ,'include: "firebase.model.lkml\"\n'
+          ,'view: events_generated {\n'
+          ,'  extends: [events_base]\n'
+          ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
+          ,'}'
+        )
+        ;;
+    html: <pre>{{value}}</pre> ;;
+  }
+}
+
+explore: user_lookml {hidden: yes}
+view: user_lookml {
+  derived_table: {
+    explore_source: sessions_debug {
+      column: lookml_dimensions {field: user_properties.lookml_dimension}
+    }
+  }
+  dimension: lookml_dimensions {}
+  measure: lookml {
+    view_label: ""
+    label: "Copy and paste this code into file users_generated.view.lookml"
+    sql:
+        CONCAT(
+           '#-- Machine Generated File, See README.  Do not edit directly\n'
+          ,'include: "firebase.model.lkml\"\n'
+          ,'view: user_generated {\n'
+          ,'  extends: [user_base]\n'
+          ,STRING_AGG(${lookml_dimensions},'\n' ORDER BY ${lookml_dimensions}),'\n'
+          ,'}'
+        )
+        ;;
+    html: <pre>{{value}}</pre> ;;
+  }
+}
+
+
 
   # Derived Tables
 

@@ -19,7 +19,7 @@ view: sessions {
 }
 
 view: user {
-  extends: [user_base]
+  extends: [user_base, user_generated]
 }
 
 view: events {
