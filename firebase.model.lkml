@@ -20,6 +20,9 @@ view: sessions {
 
 view: user {
   extends: [user_base, user_generated]
+
+  # Uncomment if user is identified by the app_instance.
+  dimension: user_id {sql: ${app_instance_id} ;;}
 }
 
 view: events {
