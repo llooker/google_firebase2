@@ -36,4 +36,4 @@ Once you have the firebase model configured.
 
 ## 2. Copy and Paste the the output the contents of the measure into the `events_generated` view in `events_generated.view.lkml`
 
-You should now be able to explore all the events.
+Replace all content of these view files with the generated LookML. You should now be able to explore all the events.
