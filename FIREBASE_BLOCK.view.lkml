@@ -34,14 +34,14 @@ view: sessions_base {
   extension: required
   sql_table_name:
     (SELECT *
-      , PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(CONCAT('2',_TABLE_SUFFIX),r'\d\d\d\d\d\d\d\d')) AS event_date
+      , PARSE_TIMESTAMP('%Y%m%d', REGEXP_EXTRACT(CONCAT('2',_TABLE_SUFFIX),r'\d\d\d\d\d\d\d\d')) AS event_date
       , ROW_NUMBER() OVER(
           PARTITION BY _TABLE_SUFFIX
           ORDER BY (SELECT MIN(timestamp_micros) FROM UNNEST(event_dim) )
           ) as id
     FROM `${app_events_table.SQL_TABLE_NAME}2*`
     WHERE {%condition event_date%}
-            TIMESTAMP(PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(CONCAT('2',_TABLE_SUFFIX),r'\d\d\d\d\d\d\d\d')))
+            PARSE_TIMESTAMP('%Y%m%d', REGEXP_EXTRACT(CONCAT('2',_TABLE_SUFFIX),r'\d\d\d\d\d\d\d\d'))
           {%endcondition%}
 
 

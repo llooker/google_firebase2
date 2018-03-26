@@ -11,7 +11,7 @@ view: app_events_table {
 explore: sessions {
   extends: [sessions_base]
   # Uncomment if you want to examine less time by default
-  #conditionally_filter:{ filters:{field:event_date  value:"2 days"}}
+  # conditionally_filter:{ filters:{field:event_date  value:"2 days"}}
 }
 
 view: sessions {
