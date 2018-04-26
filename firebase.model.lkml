@@ -29,6 +29,10 @@ view: events {
   extends: [events_base, events_generated]
 }
 
+view: events2 {
+  extends: [events_base]
+}
+
 view: device {
   extends: [device_base]
 }

@@ -27,6 +27,12 @@ explore: sessions_base {
       )) events ;;
     relationship: one_to_many
   }
+  join: events2 {
+    sql: LEFT JOIN UNNEST(ARRAY(
+      (SELECT AS STRUCT e.*, ROW_NUMBER() OVER() as id FROM UNNEST(${sessions.event_dim}) e)
+      )) events2 ;;
+    relationship: one_to_many
+  }
 
 }
 
