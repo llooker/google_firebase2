@@ -89,6 +89,20 @@ view: sessions_base {
   }
 
 
+  dimension: event_sequence {
+    sql:
+      (
+      SELECT
+        STRING_AGG(CONCAT(CAST(TRUNC(t) AS STRING),':',name),', ' ORDER BY t)
+      FROM(
+        SELECT
+          name
+          , COALESCE(timestamp_micros - min(timestamp_micros) OVER() , 0)/1000000 as t
+        FROM UNNEST(${event_dim})
+        )
+      )
+    ;;
+  }
 
   dimension: user_dim {
     hidden: yes
@@ -107,7 +121,7 @@ view: sessions_base {
 
   measure: session_count {
     type: count
-    drill_fields: [id,user_dim.user_id,events.event_count]
+    drill_fields: [id,user_dim.user_id, event_sequence, events.event_count,]
   }
 }
 
