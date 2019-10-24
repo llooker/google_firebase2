@@ -1,4 +1,8 @@
-# Firebase Block
+# Important Note
+
+This repository has now been archived as the schema for Firebase has changed. Please see this repo instead: https://github.com/llooker/firebase_block_v3
+
+~~# Firebase Block
 
 The firebase block is essententially sessionized event data.  Each session has attributes about the user
 at the point in time of the start of the session and an array of events that occured during that session.
